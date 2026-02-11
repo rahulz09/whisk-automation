@@ -2,126 +2,291 @@
 <html>
 <head>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
-      width: 320px;
-      padding: 15px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      width: 380px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8f9fa;
     }
-    h2 {
-      margin: 0 0 15px 0;
-      font-size: 16px;
-      color: #202124;
-    }
-    input[type="file"] {
-      margin: 10px 0;
-      font-size: 13px;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #1a73e8;
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      margin: 5px 0;
-      font-weight: 500;
+      padding: 20px;
+      text-align: center;
     }
-    button:hover {
-      background: #1765cc;
+    .header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 5px;
     }
-    button:disabled {
-      background: #dadce0;
-      cursor: not-allowed;
-    }
-    #stopBtn {
-      background: #d93025;
-    }
-    #stopBtn:hover:not(:disabled) {
-      background: #c5221f;
-    }
-    #downloadBtn {
-      background: #188038;
-    }
-    #downloadBtn:hover:not(:disabled) {
-      background: #137333;
-    }
-    #pauseBtn {
-      background: #f9ab00;
-    }
-    #pauseBtn:hover:not(:disabled) {
-      background: #ea8600;
-    }
-    #status {
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 4px;
+    .header p {
       font-size: 12px;
-      word-wrap: break-word;
+      opacity: 0.9;
     }
-    .info {
-      background: #e8f0fe;
-      color: #1967d2;
+    .container {
+      padding: 20px;
     }
-    .success {
-      background: #e6f4ea;
-      color: #137333;
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
-    .error {
-      background: #fce8e6;
-      color: #c5221f;
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .file-upload {
+      border: 2px dashed #d1d5db;
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .file-upload:hover {
+      border-color: #667eea;
+      background: #f9fafb;
+    }
+    .file-upload input {
+      display: none;
+    }
+    .file-label {
+      font-size: 13px;
+      color: #6b7280;
+      cursor: pointer;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .stat-item {
+      text-align: center;
+      flex: 1;
+    }
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-top: 2px;
     }
     label {
       display: block;
-      margin: 10px 0 5px 0;
+      margin: 12px 0 6px 0;
       font-size: 13px;
-      color: #5f6368;
-    }
-    label input[type="checkbox"] {
-      margin-right: 5px;
-      width: auto;
+      color: #374151;
+      font-weight: 500;
     }
     input[type="number"] {
       width: 100%;
-      padding: 8px;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
-      box-sizing: border-box;
-      font-size: 13px;
+      padding: 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border 0.3s;
     }
-    .info-text {
-      font-size: 11px;
-      color: #5f6368;
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
       margin: 10px 0;
+      padding: 8px;
+      background: #f9fafb;
+      border-radius: 6px;
+    }
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 8px;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .checkbox-group label {
+      margin: 0;
+      font-size: 13px;
+      cursor: pointer;
+      flex: 1;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin: 6px 0;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    #startBtn {
+      background: #10b981;
+      color: white;
+    }
+    #startBtn:hover:not(:disabled) {
+      background: #059669;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    #stopBtn {
+      background: #ef4444;
+      color: white;
+    }
+    #stopBtn:hover:not(:disabled) {
+      background: #dc2626;
+    }
+    #pauseBtn {
+      background: #f59e0b;
+      color: white;
+    }
+    #pauseBtn:hover:not(:disabled) {
+      background: #d97706;
+    }
+    #downloadBtn {
+      background: #3b82f6;
+      color: white;
+    }
+    #downloadBtn:hover:not(:disabled) {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+    button:disabled {
+      background: #e5e7eb;
+      color: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    #status {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.5;
+      display: none;
+    }
+    #status.visible {
+      display: block;
+    }
+    .info {
+      background: #dbeafe;
+      color: #1e40af;
+      border-left: 3px solid #3b82f6;
+    }
+    .success {
+      background: #d1fae5;
+      color: #065f46;
+      border-left: 3px solid #10b981;
+    }
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      border-left: 3px solid #ef4444;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 10px;
+      display: none;
+    }
+    .progress-bar.visible {
+      display: block;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      width: 0%;
+      transition: width 0.3s;
     }
   </style>
 </head>
 <body>
-  <h2>Whisk Automation</h2>
+  <div class="header">
+    <h2>⚡ Whisk Automation</h2>
+    <p>Automated Image Generation</p>
+  </div>
   
-  <input type="file" id="fileInput" accept=".txt">
-  
-  <label>Wait Time (seconds):</label>
-  <input type="number" id="waitTime" value="15" min="5" max="60">
-  
-  <label>
-    <input type="checkbox" id="autoRetry" checked> Auto-retry on failure
-  </label>
-  
-  <label>
-    <input type="checkbox" id="skipExisting" checked> Skip if image exists
-  </label>
-  
-  <button id="startBtn">Start Automation</button>
-  <button id="stopBtn" disabled>Stop</button>
-  <button id="pauseBtn" disabled>Pause</button>
-  <button id="downloadBtn" disabled>Download ZIP</button>
-  
-  <div id="status"></div>
-  
-  <div class="info-text">
-    Upload a .txt file with one prompt per line. The extension will automatically generate images and download them as a ZIP.
+  <div class="container">
+    <div class="section">
+      <div class="section-title">Upload Prompts</div>
+      <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+        <label class="file-label" for="fileInput">
+          📁 Click to upload .txt file<br>
+          <small style="color: #9ca3af;">One prompt per line</small>
+        </label>
+        <input type="file" id="fileInput" accept=".txt">
+      </div>
+      
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-value" id="totalPrompts">0</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="completedCount">0</div>
+          <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="downloadCount">0</div>
+          <div class="stat-label">Downloaded</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">Settings</div>
+      
+      <label>Wait Time (seconds)</label>
+      <input type="number" id="waitTime" value="15" min="5" max="60">
+      
+      <div class="checkbox-group">
+        <input type="checkbox" id="autoRetry" checked>
+        <label for="autoRetry">🔄 Auto-retry on failure</label>
+      </div>
+      
+      <div class="checkbox-group">
+        <input type="checkbox" id="skipExisting" checked>
+        <label for="skipExisting">⏭️ Skip duplicate prompts</label>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">Controls</div>
+      <button id="startBtn" disabled>▶️ Start Automation</button>
+      <button id="pauseBtn" disabled>⏸️ Pause</button>
+      <button id="stopBtn" disabled>⏹️ Stop</button>
+      <button id="downloadBtn" disabled>⬇️ Download ZIP</button>
+      
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      
+      <div id="status"></div>
+    </div>
   </div>
   
   <script src="jszip.min.js"></script>

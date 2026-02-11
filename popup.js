@@ -8,7 +8,8 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
     const reader = new FileReader();
     reader.onload = function(event) {
       prompts = event.target.result.split('\n').filter(p => p.trim());
-      showStatus(`Loaded ${prompts.length} prompts`, 'info');
+      document.getElementById('totalPrompts').textContent = prompts.length;
+      showStatus(`✓ Loaded ${prompts.length} prompts`, 'success');
       document.getElementById('startBtn').disabled = false;
     };
     reader.readAsText(file);
@@ -17,7 +18,7 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
 
 document.getElementById('startBtn').addEventListener('click', async () => {
   if (!prompts.length) {
-    showStatus('Please upload a .txt file first', 'error');
+    showStatus('⚠️ Please upload a .txt file first', 'error');
     return;
   }
 
@@ -31,7 +32,11 @@ document.getElementById('startBtn').addEventListener('click', async () => {
   document.getElementById('stopBtn').disabled = false;
   document.getElementById('pauseBtn').disabled = false;
   document.getElementById('downloadBtn').disabled = true;
+  document.getElementById('progressBar').classList.add('visible');
   isPaused = false;
+  generatedImages = [];
+  document.getElementById('completedCount').textContent = '0';
+  document.getElementById('downloadCount').textContent = '0';
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   
@@ -49,7 +54,8 @@ document.getElementById('stopBtn').addEventListener('click', async () => {
   document.getElementById('startBtn').disabled = false;
   document.getElementById('stopBtn').disabled = true;
   document.getElementById('pauseBtn').disabled = true;
-  showStatus('Automation stopped', 'info');
+  document.getElementById('pauseBtn').textContent = '⏸️ Pause';
+  showStatus('⏹️ Automation stopped', 'info');
 });
 
 document.getElementById('pauseBtn').addEventListener('click', async () => {
@@ -57,8 +63,8 @@ document.getElementById('pauseBtn').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   chrome.tabs.sendMessage(tab.id, { action: 'pauseAutomation', paused: isPaused });
   
-  document.getElementById('pauseBtn').textContent = isPaused ? 'Resume' : 'Pause';
-  showStatus(isPaused ? 'Paused' : 'Resumed', 'info');
+  document.getElementById('pauseBtn').textContent = isPaused ? '▶️ Resume' : '⏸️ Pause';
+  showStatus(isPaused ? '⏸️ Paused' : '▶️ Resumed', 'info');
 });
 
 document.getElementById('downloadBtn').addEventListener('click', async () => {
@@ -90,7 +96,9 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.action === 'progress') {
     const percent = Math.round((message.current / message.total) * 100);
-    showStatus(`[${percent}%] ${message.current}/${message.total} - ${message.prompt.substring(0, 30)}...`, 'info');
+    document.getElementById('progressFill').style.width = percent + '%';
+    document.getElementById('completedCount').textContent = message.current;
+    showStatus(`⚙️ Processing ${message.current}/${message.total} - ${message.prompt.substring(0, 25)}...`, 'info');
   } else if (message.action === 'imageGenerated') {
     // Convert base64 to blob
     const response = await fetch(message.dataUrl);
@@ -99,20 +107,24 @@ chrome.runtime.onMessage.addListener(async (message) => {
       filename: message.filename,
       blob: blob
     });
+    document.getElementById('downloadCount').textContent = generatedImages.length;
     showStatus(`✓ Saved: ${message.filename}`, 'success');
   } else if (message.action === 'retrying') {
-    showStatus(`⟳ Retrying: ${message.prompt.substring(0, 30)}... (Attempt ${message.attempt})`, 'info');
+    showStatus(`🔄 Retrying: ${message.prompt.substring(0, 25)}... (Attempt ${message.attempt}/3)`, 'info');
   } else if (message.action === 'complete') {
-    showStatus(`✓ Completed! Generated ${generatedImages.length} images`, 'success');
+    document.getElementById('progressFill').style.width = '100%';
+    showStatus(`🎉 Completed! Generated ${generatedImages.length} images`, 'success');
     document.getElementById('startBtn').disabled = false;
     document.getElementById('stopBtn').disabled = true;
     document.getElementById('pauseBtn').disabled = true;
+    document.getElementById('pauseBtn').textContent = '⏸️ Pause';
     document.getElementById('downloadBtn').disabled = false;
   } else if (message.action === 'error') {
-    showStatus(`✗ Error: ${message.error}`, 'error');
+    showStatus(`❌ Error: ${message.error}`, 'error');
     document.getElementById('startBtn').disabled = false;
     document.getElementById('stopBtn').disabled = true;
     document.getElementById('pauseBtn').disabled = true;
+    document.getElementById('pauseBtn').textContent = '⏸️ Pause';
     if (generatedImages.length > 0) {
       document.getElementById('downloadBtn').disabled = false;
     }
@@ -122,5 +134,5 @@ chrome.runtime.onMessage.addListener(async (message) => {
 function showStatus(text, type) {
   const status = document.getElementById('status');
   status.textContent = text;
-  status.className = type;
+  status.className = type + ' visible';
 }
