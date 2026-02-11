@@ -109,13 +109,13 @@ async function processPrompts(prompts, config) {
           throw new Error('Generated image not found');
         }
 
-        // Download image
-        const blob = await fetchImageAsBlob(generatedImage.src);
+        // Download image as base64
+        const dataUrl = await getImageDataUrl(generatedImage.src);
 
         chrome.runtime.sendMessage({
           action: 'imageGenerated',
           filename: filename,
-          blob: blob
+          dataUrl: dataUrl
         });
 
         existingFiles.add(filename);
@@ -147,6 +147,35 @@ async function processPrompts(prompts, config) {
 async function fetchImageAsBlob(url) {
   const response = await fetch(url);
   return await response.blob();
+}
+
+async function getImageDataUrl(url) {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    // Fallback: try canvas method
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
 }
 
 function sanitizeFilename(text) {

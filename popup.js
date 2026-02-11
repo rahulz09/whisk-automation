@@ -87,14 +87,17 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
   showStatus('ZIP file downloaded!', 'success');
 });
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(async (message) => {
   if (message.action === 'progress') {
     const percent = Math.round((message.current / message.total) * 100);
     showStatus(`[${percent}%] ${message.current}/${message.total} - ${message.prompt.substring(0, 30)}...`, 'info');
   } else if (message.action === 'imageGenerated') {
+    // Convert base64 to blob
+    const response = await fetch(message.dataUrl);
+    const blob = await response.blob();
     generatedImages.push({
       filename: message.filename,
-      blob: message.blob
+      blob: blob
     });
     showStatus(`✓ Saved: ${message.filename}`, 'success');
   } else if (message.action === 'retrying') {
