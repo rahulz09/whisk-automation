@@ -1,17 +1,26 @@
 let isRunning = false;
 let isPaused = false;
 
+// Log when content script loads
+console.log('Whisk Automation: Content script loaded');
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log('Whisk Automation: Received message', message.action);
+  
   if (message.action === 'startAutomation') {
     isRunning = true;
     isPaused = false;
     processPrompts(message.prompts, message.config);
+    sendResponse({success: true});
   } else if (message.action === 'stopAutomation') {
     isRunning = false;
     isPaused = false;
+    sendResponse({success: true});
   } else if (message.action === 'pauseAutomation') {
     isPaused = message.paused;
+    sendResponse({success: true});
   }
+  return true;
 });
 
 async function processPrompts(prompts, config) {

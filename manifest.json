@@ -8,8 +8,9 @@
     "default_popup": "popup.html"
   },
   "content_scripts": [{
-    "matches": ["https://labs.google/fx/tools/whisk/*"],
-    "js": ["content.js"]
+    "matches": ["https://labs.google/*"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
   }],
   "host_permissions": ["https://labs.google/*"]
 }

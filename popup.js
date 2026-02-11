@@ -38,13 +38,35 @@ document.getElementById('startBtn').addEventListener('click', async () => {
   document.getElementById('completedCount').textContent = '0';
   document.getElementById('downloadCount').textContent = '0';
 
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  
-  chrome.tabs.sendMessage(tab.id, {
-    action: 'startAutomation',
-    prompts: prompts,
-    config: config
-  });
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    
+    if (!tab.url.includes('labs.google')) {
+      showStatus('⚠️ Please open Whisk page first: labs.google/fx/tools/whisk/project', 'error');
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+      document.getElementById('pauseBtn').disabled = true;
+      return;
+    }
+    
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'startAutomation',
+      prompts: prompts,
+      config: config
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        showStatus('❌ Error: Please refresh the Whisk page and try again', 'error');
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('pauseBtn').disabled = true;
+      }
+    });
+  } catch (error) {
+    showStatus('❌ Error: ' + error.message, 'error');
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    document.getElementById('pauseBtn').disabled = true;
+  }
 });
 
 document.getElementById('stopBtn').addEventListener('click', async () => {
